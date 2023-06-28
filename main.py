@@ -65,15 +65,6 @@ def handle_audio_file(file, file_path):
 # Set the Streamlit page configuration
 st.set_page_config(page_title="Lu0's handy transcription app", page_icon="🐱", layout="wide")
 
-#Remove hamburger menu and Streamlit watermark
-hide_default_format = """
-       <style>
-       #MainMenu {visibility: hidden; }
-       footer {visibility: hidden;}
-       </style>
-       """
-st.markdown(hide_default_format, unsafe_allow_html=True)
-
 # Start Top Information
 st.title("Lu0's handy transcription app 🐱")
 st.markdown("### An app I made to easily generate transcripts for videos.")
