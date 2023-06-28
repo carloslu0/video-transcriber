@@ -76,23 +76,26 @@ output_type = st.radio(
     "Video Type:",
     ('Youtube video', 'Local file'), horizontal=True)
 
-
 if output_type == 'Youtube video':
-    youtube_video = st.text_input(label="Youtube URL (Separate multiple URLs with commas)", placeholder="Ex: https://www.youtube.com/watch?v=dQw4w9WgXcQ", key="yt_video")
+    youtube_videos = st.text_input(label="Youtube URLs (Separate multiple URLs with commas)", placeholder="Ex: https://www.youtube.com/watch?v=dQw4w9WgXcQ, https://www.youtube.com/watch?v=anothervideo", key="yt_videos")
     
     # Add a button
     button_pressed = st.button("Get Transcripts")
     
     # Execute this block if the button is pressed
     if button_pressed:
-        if youtube_video:
-            transcripts = get_yt_transcripts(youtube_video)
-            for i, (transcription, metadata) in enumerate(transcripts):
-                st.text(f"Transcription for '{metadata['title']}'")
-                st.image(metadata['thumbnail_url'], caption=metadata['title'])
-                st.text_area(value=transcription, height=200, max_chars=None)
+        if youtube_videos:
+            video_urls = youtube_videos.split(",")
+            for url in video_urls:
+                url = url.strip()
+                transcripts = get_yt_transcripts(url)
+                for i, (transcription, metadata) in enumerate(transcripts):
+                    st.text(f"Transcription for '{metadata['title']}'")
+                    st.image(metadata['thumbnail_url'], caption=metadata['title'])
+                    st.text_area(label=f"Transcription for '{metadata['title']}'", value=transcription, height=200, max_chars=None)
+                    st.write("---")  # Add a separator between transcripts
         else:
-            st.warning("Please enter a Youtube URL before pressing the button.")
+            st.warning("Please enter Youtube URLs before pressing the button.")
 
 
 elif output_type == 'Local file':
