@@ -78,13 +78,21 @@ output_type = st.radio(
 
 
 if output_type == 'Youtube video':
-    youtube_video = st.text_input(label="Youtube URL", placeholder="Ex: https://www.youtube.com/watch?v=dQw4w9WgXcQ", key="yt_video")
+    youtube_video = st.text_input(label="Youtube URL (Separate multiple URLs with commas)", placeholder="Ex: https://www.youtube.com/watch?v=dQw4w9WgXcQ", key="yt_video")
     
-    if youtube_video: # Check if user has inputted a URL
-        transcripts = get_yt_transcripts(youtube_video)
-        for i, (transcription, metadata) in enumerate(transcripts):
-            st.image(metadata['thumbnail_url'], caption=metadata['title'])
-            st.text_area(label=f"Transcription for '{metadata['title']}'", value=transcription, height=200, max_chars=None)
+    # Add a button
+    button_pressed = st.button("Get Transcripts")
+    
+    # Execute this block if the button is pressed
+    if button_pressed:
+        if youtube_video:
+            transcripts = get_yt_transcripts(youtube_video)
+            for i, (transcription, metadata) in enumerate(transcripts):
+                st.text(f"Transcription for '{metadata['title']}'")
+                st.image(metadata['thumbnail_url'], caption=metadata['title'])
+                st.text_area(value=transcription, height=200, max_chars=None)
+        else:
+            st.warning("Please enter a Youtube URL before pressing the button.")
 
 
 elif output_type == 'Local file':
