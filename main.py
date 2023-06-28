@@ -41,7 +41,7 @@ def summarize_transcripts(transcript):
 
 
 def get_audio_transcripts(file):
-    model = whisper.Load_model("base")
+    model = whisper.load_model("base")
     result = model.transcribe(file)
     return result["text"]
 
