@@ -41,8 +41,20 @@ def summarize_transcripts(transcript):
 
 
 def get_audio_transcripts(file):
+    # Save uploaded file to temp WAV file
+    with open("temp.wav", "wb") as f:
+        f.write(file.getbuffer())
+    
+    # Load WAV file with pydub
+    audio = AudioSegment.from_wav("temp.wav")
+    
+    # Pass pydub audio to whisper
     model = whisper.load_model("base")
-    result = model.transcribe(file)
+    result = model.transcribe(audio)
+    
+    # Delete temp WAV file
+    os.remove("temp.wav")
+    
     return result["text"]
 
 def handle_audio_file(file, file_path):
