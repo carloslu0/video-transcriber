@@ -17,6 +17,9 @@ from moviepy.editor import VideoFileClip
 #Streamlit
 import streamlit as st
 from streamlit_extras.buy_me_a_coffee import button
+from annotated_text import annotated_text
+
+
 
 
 #Set API keys
@@ -111,6 +114,8 @@ if output_type == 'Youtube video':
 
 
 elif output_type == 'Local file':
+    annotated_text("This section doesn't work yet and I already spent too much time trying to troubleshoot so leaving it for now.", color="#8ef"),
+
     # Maximum file size in bytes for different ranges
     MAX_FILE_SIZE_25MB = 25 * 1024 * 1024
     MAX_FILE_SIZE_50MB = 50 * 1024 * 1024
