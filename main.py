@@ -78,17 +78,17 @@ output_type = st.radio(
 
 
 if output_type == 'Youtube video':
-    youtube_video = st.text_input(label="Youtube URL",  placeholder="Ex: https://www.youtube.com/watch?v=dQw4w9WgXcQ", key="yt_video")
-    transcripts = get_yt_transcripts(youtube_video)
-    for i, (transcription, metadata) in enumerate(transcripts):
+    youtube_video = st.text_input(label="Youtube URL", placeholder="Ex: https://www.youtube.com/watch?v=dQw4w9WgXcQ", key="yt_video")
+    
+    if youtube_video: # Check if user has inputted a URL
+        transcripts = get_yt_transcripts(youtube_video)
+        for i, (transcription, metadata) in enumerate(transcripts):
             st.text(f"Transcription for '{metadata['title']}'")
             st.image(metadata['thumbnail_url'], caption=metadata['title'])
             st.text_area(value=transcription, height=200, max_chars=None)
 
 
 elif output_type == 'Local file':
-    uploaded_files = st.file_uploader("Choose a file", accept_multiple_files=True)
-
     # Maximum file size in bytes for different ranges
     MAX_FILE_SIZE_25MB = 25 * 1024 * 1024
     MAX_FILE_SIZE_50MB = 50 * 1024 * 1024
