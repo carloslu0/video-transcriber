@@ -83,9 +83,8 @@ if output_type == 'Youtube video':
     if youtube_video: # Check if user has inputted a URL
         transcripts = get_yt_transcripts(youtube_video)
         for i, (transcription, metadata) in enumerate(transcripts):
-            st.text(f"Transcription for '{metadata['title']}'")
             st.image(metadata['thumbnail_url'], caption=metadata['title'])
-            st.text_area(value=transcription, height=200, max_chars=None)
+            st.text_area(label=f"Transcription for '{metadata['title']}'", value=transcription, height=200, max_chars=None)
 
 
 elif output_type == 'Local file':
