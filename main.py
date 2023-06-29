@@ -128,7 +128,7 @@ if input_type == 'Youtube URL':
 
                         #Send Chat Completion
                         response = openai.ChatCompletion.create(
-                            model="gpt-3.5-turbo",
+                            model="gpt-3.5-turbo-16k",
                             messages=[{"role": "system", "content": "You are a world-class data analyst. Create a concise summary of the transcription provided by the users below:"},
                                     {"role": "user", "content": transcription},]
                                     )
