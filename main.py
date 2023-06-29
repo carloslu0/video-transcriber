@@ -29,7 +29,6 @@ else:
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
-
 # Functions
 # Function to load Youtube video data and create transcripts
 def get_yt_transcripts(url):
