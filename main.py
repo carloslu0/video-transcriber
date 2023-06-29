@@ -38,18 +38,11 @@ def get_yt_transcripts(url):
     return [(doc.page_content, doc.metadata) for doc in documents]
 
 
-# Function to split long transcripts into chunks via LangChain
-def split_text(transcript):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=200)
-    docs = text_splitter.create_documents([transcript])
-    return docs
-
-
 # Function to summarize chunks via LangChain
 def summarize_text(docs):
-    llm = OpenAI(temperature=0, openai_api_key=OPENAI_API_KEY)
+    llm = OpenAI(temperature=0, openai_api_key="YOUR_API_KEY")
     chain = load_summarize_chain(llm, chain_type="map_reduce", verbose=True)
-    return chain.run(docs)
+    return chain.run([{ "page_content": doc } for doc in docs])
 
 
 # Function to transcribe via Whisper
@@ -90,19 +83,33 @@ if input_type == 'Youtube URL':
             video_urls = youtube_videos.split(",")
             for url in video_urls:
                 url = url.strip()
-                transcripts = get_yt_transcripts(url)
-                for i, (transcription, metadata) in enumerate(transcripts):
+                loader = YoutubeLoader.from_youtube_url(url, add_video_info=True)
+                data = loader.load()
+
+                text_splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=2000,
+                    chunk_overlap=200,
+                    length_function=len,
+                )
+                docs = text_splitter.split_documents(data)
+
+                for i, doc in enumerate(docs):
+                    transcription = doc["page_content"]
+                    metadata = doc["metadata"]
+
                     st.text(f"Transcription for '{metadata['title']}'")
                     st.image(metadata['thumbnail_url'], caption=metadata['title'])
                     st.text_area(label=f"Transcription for '{metadata['title']}'", value=transcription, height=200, max_chars=None)
                     st.write("---")  # Add a separator between transcripts
-                    
-                if output_type == 'Transcript with summary':
-                    summarized_transcripts = summarize_text(transcription)
-                    if summarized_transcripts is not None:
-                        for doc in summarized_transcripts:
-                            st.write("Summary:")
-                            st.write(doc)
+
+                    if output_type == 'Transcript with summary':
+                        summarized_transcripts = summarize_text([transcription])
+                        if summarized_transcripts is not None:
+                            for j, summary in enumerate(summarized_transcripts):
+                                transcription_number = i * len(summarized_transcripts) + j + 1
+                                st.write(f"Summary for Transcription {transcription_number}:")
+                                st.write(summary["summary"])
+                                st.write("---")  # Add a separator between summaries
         else:
             st.warning("Please enter Youtube URLs before pressing the button.")
 
