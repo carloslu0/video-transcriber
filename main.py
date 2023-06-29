@@ -52,10 +52,10 @@ def get_audio_transcripts(file):
         f.write(file.getbuffer())
 
     # Use ffmpeg to convert audio to the desired format
-    subprocess.run(["ffmpeg", "-i", "temp.wav", "-f", "wav", "-ar", "16000", "-ac", "1", "-"], stdout=subprocess.PIPE)
+    subprocess.run(["ffmpeg", "-i", "temp.wav", "-f", "wav", "-ar", "16000", "-ac", "1", "output.wav"], check=True)
 
     # Load the converted audio with pydub
-    audio = AudioSegment.from_file("pipe:", format="wav")
+    audio = AudioSegment.from_file("output.wav", format="wav")
 
     # Pass the audio to whisper for transcription
     model = whisper.load_model("base")
@@ -65,7 +65,6 @@ def get_audio_transcripts(file):
     os.remove("temp.wav")
 
     return result["text"]
-
 
 
 
