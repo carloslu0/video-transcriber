@@ -37,7 +37,7 @@ def get_yt_transcripts(url):
 # Function to split long transcripts into chunks via LangChain
 def split_text(transcript):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=200)
-    docs = text_splitter.split_documents([transcript])
+    docs = text_splitter.create_documents([transcript])
     return docs
 
 
@@ -97,7 +97,7 @@ if input_type == 'Youtube URL':
     youtube_videos = st.text_input(label="Youtube URLs (Separate multiple URLs with commas)", placeholder="Ex: https://www.youtube.com/watch?v=dQw4w9WgXcQ, https://www.youtube.com/watch?v=anothervideo", key="yt_videos")
 
     # Add a button
-    button_pressed = st.button("Get Transcript/s")
+    button_pressed = st.button("Get Transcript")
 
     # Execute this block if the button is pressed
     if button_pressed:
@@ -124,12 +124,12 @@ if input_type == 'Youtube URL':
 
 
 elif input_type == 'Other URLs':
-    annotated_text(annotation("This section is under maintenance 🔨", color="#8ef", border="1px dashed red"))
+    annotated_text(annotation("🚧 This section is under maintenance 🚧", color="#8ef", border="1px dashed red"))
     other_urls = st.text_input(label="Other URLs (Separate multiple URLs with commas)", placeholder="Ex: ", key="other_urls")
     #model = whisper.load_model("small")
 
     # Add a button
-    button_pressed = st.button("Get Transcript/s")
+    button_pressed = st.button("Get Transcript")
 
     # Execute this block if the button is pressed
     if button_pressed:
@@ -140,7 +140,6 @@ elif input_type == 'Other URLs':
                 transcripts = transcribe_with_whisper(url)
                 for j, (transcription,) in enumerate(transcripts):
                     st.text(f"Transcription {i}")
-                    st.image(metadata['thumbnail_url'], caption=metadata['title'])
                     st.text_area(label=f"Transcription {i}", value=transcription, height=200, max_chars=None)
                     st.write("---")  # Add a separator between transcripts
                     
@@ -151,12 +150,12 @@ elif input_type == 'Other URLs':
                         for doc in summarized_transcripts:
                             st.write(doc)
         else:
-            st.warning("Please enter Youtube URLs before pressing the button.")
+            st.warning("Please enter URLs before pressing the button.")
 
 
 
 elif input_type == 'Local file':
-    annotated_text(annotation("This section is under maintenance 🔨", color="#8ef", border="1px dashed red"))
+    annotated_text(annotation("🚧 This section is under maintenance 🚧", color="#8ef", border="1px dashed red"))
     uploaded_files = st.file_uploader("Choose a file")
 
     #model = whisper.load_model("small")
