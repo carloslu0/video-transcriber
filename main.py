@@ -21,7 +21,14 @@ from annotated_text import annotated_text, annotation
 
 
 #Set API keys
+def get_openai_api_key():
+    os.environ['OPENAI_API_KEY'] == st.secrets['OPENAI_API_KEY']
+
+
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
+if not OPENAI_API_KEY:
+    OPENAI_API_KEY = get_openai_api_key()
 
 
 # Functions
