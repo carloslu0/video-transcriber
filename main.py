@@ -55,7 +55,7 @@ def summarize_transcripts(transcripts, chunk_size=2000, chunk_overlap=200):
     Summarize the given transcripts.
     
     Parameters:
-        transcripts (list): List of transcripts.
+        transcripts (list): List of tuples containing transcript and metadata.
         chunk_size (int, optional): Size of the chunks the text should be split into.
         chunk_overlap (int, optional): Number of characters of overlap between chunks.
         
@@ -65,8 +65,10 @@ def summarize_transcripts(transcripts, chunk_size=2000, chunk_overlap=200):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     summaries = []
     
-    for transcription in transcripts:
+    for transcript_tuple in transcripts:
         try:
+            # Extract the transcript part from the tuple
+            transcription = transcript_tuple[0]
             summaries.extend(text_splitter.split_documents(transcription))
         except Exception as e:
             print(f"Error processing transcript: {e}")
