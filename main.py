@@ -10,13 +10,6 @@ from langchain.chains.summarize import load_summarize_chain
 
 #Whisper
 import whisper
-import static_ffmpeg
-# ffmpeg installed on first call to add_paths(), threadsafe.
-static_ffmpeg.add_paths()  # blocks until files are downloaded
-# or static_ffmpeg.add_paths(weak=True) to only add if ffmpeg/ffprobe not already on path
-# Now ffmpeg and ffprobe will use static_ffmpeg versions.
-os.system("ffmpeg -i myfile.mp4 ...")
-# Using the program location method
 import subprocess
 from static_ffmpeg import run
 # Platform binaries are installed on the first run of below.
