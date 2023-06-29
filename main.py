@@ -42,7 +42,7 @@ def get_yt_transcripts(url):
 
 # Function to summarize chunks via LangChain
 def summarize_text(docs):
-    llm = OpenAI(temperature=0, openai_api_key="YOUR_API_KEY")
+    llm = OpenAI(temperature=0, openai_api_key="OPENAI_API_KEY")
     chain = load_summarize_chain(llm, chain_type="map_reduce", verbose=True)
 
     # if docs is not already a list of Document instances
