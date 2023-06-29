@@ -14,8 +14,9 @@ import whisper
 import ffmpeg
 from pydub import AudioSegment
 import mimetypes
-from pydub import AudioSegment
 from moviepy.editor import VideoFileClip
+import numpy as np
+
 
 #Streamlit
 import streamlit as st
@@ -57,9 +58,12 @@ def get_audio_transcripts(file):
     # Load the converted audio with pydub
     audio = AudioSegment.from_file("output.wav", format="wav")
 
+    # Convert AudioSegment to NumPy array
+    audio_np = np.array(audio.get_array_of_samples())
+
     # Pass the audio to whisper for transcription
     model = whisper.load_model("base")
-    result = model.transcribe(audio)
+    result = model.transcribe(audio_np)
 
     # Delete temporary WAV file
     os.remove("temp.wav")
