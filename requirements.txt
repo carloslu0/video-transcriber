@@ -80,7 +80,3 @@ streamlit-extras
 pydub
 moviepy
 openai-whisper
-imageio-ffmpeg
-ffmpeg
-whisper
-torch
