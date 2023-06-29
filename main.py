@@ -49,7 +49,7 @@ def split_text(transcript):
 def summarize_text(docs):
     llm = OpenAI(temperature=0, openai_api_key=OPENAI_API_KEY)
     chain = load_summarize_chain(llm, chain_type="map_reduce", verbose=True)
-    chain.run(docs)
+    return chain.run(docs)
 
 
 # Function to transcribe via Whisper
@@ -57,25 +57,6 @@ def transcribe_with_whisper(url):
     model = whisper.load_model("small")
     result = model.transcribe(url)
     return result
-
-
-def inference(link):
-  content = requests.get(link)
-  podcast_url = re.findall("(?P<url>\;https?://[^\s]+)", content.text)[0].split(';')[1]
-  print(podcast_url)
-  
-
-  download = requests.get(podcast_url)
-
-  with open('podcast.mp3', 'wb') as f:
-    f.write(download.content)
-
-  result = model.transcribe('podcast.mp3')
-
-  with open('sub.vtt', "w") as txt:
-    write_vtt(result["segments"], file=txt)
-
-  return (result['text'], 'sub.vtt')
 
 
 #Start Streamlit
@@ -116,11 +97,11 @@ if input_type == 'Youtube URL':
                     st.text_area(label=f"Transcription for '{metadata['title']}'", value=transcription, height=200, max_chars=None)
                     st.write("---")  # Add a separator between transcripts
                     
-                    if output_type == 'Transcript with summary':
-                        split_transcripts = split_text(transcription)
-                        summarized_transcripts = summarize_text(split_transcripts)
-                        st.write("Summary:")
+                if output_type == 'Transcript with summary':
+                    summarized_transcripts = summarize_text(transcription)
+                    if summarized_transcripts is not None:
                         for doc in summarized_transcripts:
+                            st.write("Summary:")
                             st.write(doc)
         else:
             st.warning("Please enter Youtube URLs before pressing the button.")
@@ -147,11 +128,11 @@ elif input_type == 'Other URLs':
                     st.text_area(label=f"Transcription {i}", value=transcription, height=200, max_chars=None)
                     st.write("---")  # Add a separator between transcripts
                     
-                    if output_type == 'Transcript with summary':
-                        split_transcripts = split_text(transcription)
-                        summarized_transcripts = summarize_text(split_transcripts)
-                        st.write("Summary:")
+                if output_type == 'Transcript with summary':
+                    summarized_transcripts = summarize_text(transcription)
+                    if summarized_transcripts is not None:
                         for doc in summarized_transcripts:
+                            st.write("Summary:")
                             st.write(doc)
         else:
             st.warning("Please enter URLs before pressing the button.")
