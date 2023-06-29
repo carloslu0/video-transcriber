@@ -1,6 +1,8 @@
 #Environment variables
 import os
 
+#OpenAI
+import openai
 
 #LangChain
 from langchain.llms import OpenAI
@@ -25,6 +27,8 @@ if "openai_api_key" in st.secrets:
     OPENAI_API_KEY = st.secrets["openai_api_key"]
 else:
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 # Functions
@@ -109,10 +113,6 @@ input_type = st.radio(
     "Input Type:",
     ('Youtube URL', 'Other URLs', 'Local file'), horizontal=True)
 
-output_type = st.radio(
-    "Choose your output:",
-    ('Transcript only', 'Transcript with summary'), horizontal=True)
-
 if input_type == 'Youtube URL':
     youtube_videos = st.text_input(label="Youtube URLs (Separate multiple URLs with commas)", placeholder="Ex: https://www.youtube.com/watch?v=dQw4w9WgXcQ, https://www.youtube.com/watch?v=anothervideo", key="yt_videos")
 
@@ -127,6 +127,13 @@ if input_type == 'Youtube URL':
                     url = url.strip()
                     transcripts = get_yt_transcripts(url)
                     for i, (transcription, metadata) in enumerate(transcripts):
+
+                        #Send Chat Completion
+                        response = openai.ChatCompletion.create(
+                            model="gpt-3.5-turbo",
+                            messages=[{"role": "system", "content": "You are a world-class data analyst. Create a concise summary of the transcription provided by the users below:"},
+                                    {"role": "user", "content": transcription},]
+                                    )
                         
                         # Check if metadata is available
                         if metadata:
@@ -143,12 +150,8 @@ if input_type == 'Youtube URL':
                             st.image(thumbnail_url, caption=title)
                         
                         st.text_area(label=f"Transcription for '{title}'", value=transcription, height=200, max_chars=None)
-        
-                        # Summarize the transcript and display the summaries if output_type is 'Transcript with summary'
-                        if output_type == 'Transcript with summary':
-                            summaries = summarize_transcripts(transcription)
-                            for summary in summaries:
-                                st.text_area(label=f"Summary for '{title}'", value=summary, height=100, max_chars=None)
+                        print(response.choices[0].message['content'])
+                        st.text_area(label=f"Summary for '{title}'", value=response.choices[0].message['content'], height=100, max_chars=None)
                         st.write("---")  # Add a separator between transcripts
 
         else:
@@ -176,13 +179,7 @@ elif input_type == 'Other URLs':
                         st.image(metadata['thumbnail_url'], caption=metadata['title'])
                         st.text_area(label=f"Transcription for '{metadata['title']}'", value=transcription, height=200, max_chars=None)
         
-                        # Summarize the transcript and display the summaries if output_type is 'Transcript with summary'
-                        if output_type == 'Transcript with summary':
-                            summaries = summarize_transcripts([(transcription, metadata)])
-                            for summary in summaries:
-                                st.text_area(label=f"Summary for '{metadata['title']}'", value=summary, height=100, max_chars=None)
-                        st.write("---")  # Add a separator between transcripts
-
+                        
         else:
             st.warning("Please enter Youtube URLs before pressing the button.")
 
