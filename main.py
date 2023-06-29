@@ -13,8 +13,6 @@ from langchain.chains.summarize import load_summarize_chain
 
 #Whisper
 import whisper
-from whisper.utils import write_vtt
-
 
 #Streamlit
 import streamlit as st
@@ -25,10 +23,10 @@ from annotated_text import annotated_text, annotation
 #Set API keys
 if "openai_api_key" in st.secrets:
     OPENAI_API_KEY = st.secrets["openai_api_key"]
+    openai.api_key = st.secrets["openai_api_key"]
 else:
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-    
-openai.api_key = os.getenv("OPENAI_API_KEY")
+    openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 # Functions
