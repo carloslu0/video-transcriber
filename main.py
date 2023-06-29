@@ -52,7 +52,7 @@ def summarize_transcripts(transcripts, chunk_size=2000, chunk_overlap=200):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     summaries = []
     
-    for transcription, metadata in transcripts:
+    for transcription in transcripts:
         try:
             summaries.extend(text_splitter.split_documents(transcription))
         except Exception as e:
@@ -91,7 +91,7 @@ if input_type == 'Youtube URL':
     youtube_videos = st.text_input(label="Youtube URLs (Separate multiple URLs with commas)", placeholder="Ex: https://www.youtube.com/watch?v=dQw4w9WgXcQ, https://www.youtube.com/watch?v=anothervideo", key="yt_videos")
 
     # Add a button
-    button_pressed = st.button("Get Transcript/s")
+    button_pressed = st.button("Get Transcript")
 
     # Execute this block if the button is pressed
     if button_pressed:
@@ -107,7 +107,7 @@ if input_type == 'Youtube URL':
         
                         # Summarize the transcript and display the summaries if output_type is 'Transcript with summary'
                         if output_type == 'Transcript with summary':
-                            summaries = summarize_transcripts([(transcription, metadata)])
+                            summaries = summarize_transcripts(transcription)
                             for summary in summaries:
                                 st.text_area(label=f"Summary for '{metadata['title']}'", value=summary, height=100, max_chars=None)
                         st.write("---")  # Add a separator between transcripts
@@ -123,7 +123,7 @@ elif input_type == 'Other URLs':
     #model = whisper.load_model("small")
 
     # Add a button
-    button_pressed = st.button("Get Transcript/s")
+    button_pressed = st.button("Get Transcript")
 
     # Execute this block if the button is pressed
     if button_pressed:
