@@ -8,7 +8,6 @@ from langchain.llms import OpenAI
 from langchain.document_loaders import YoutubeLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.summarize import load_summarize_chain
-from langchain.docstore.document import Document
 
 
 #Whisper
@@ -38,17 +37,29 @@ def get_yt_transcripts(url):
     st.write("Creating Transcript...")
     return [(doc.page_content, doc.metadata) for doc in documents]
 
+def summarize_transcripts(transcripts, chunk_size=2000, chunk_overlap=200):
+    """
+    Summarize the given transcripts.
+    
+    Parameters:
+        transcripts (list): List of transcripts.
+        chunk_size (int, optional): Size of the chunks the text should be split into.
+        chunk_overlap (int, optional): Number of characters of overlap between chunks.
+        
+    Returns:
+        list: Summarized text.
+    """
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+    summaries = []
+    
+    for transcription, metadata in transcripts:
+        try:
+            summaries.extend(text_splitter.split_documents(transcription))
+        except Exception as e:
+            print(f"Error processing transcript: {e}")
 
-# Function to summarize chunks via LangChain
-def summarize_text(docs):
-    llm = OpenAI(temperature=0, openai_api_key="OPENAI_API_KEY")
-    chain = load_summarize_chain(llm, chain_type="map_reduce", verbose=True)
+    return summaries
 
-    # if docs is not already a list of Document instances
-    docs = [Document(page_content=doc) for doc in docs]
-
-    # run the summarization chain on the list of Document instances
-    return chain.run(docs)
 
 # Function to transcribe via Whisper
 def transcribe_with_whisper(url):
@@ -80,79 +91,66 @@ if input_type == 'Youtube URL':
     youtube_videos = st.text_input(label="Youtube URLs (Separate multiple URLs with commas)", placeholder="Ex: https://www.youtube.com/watch?v=dQw4w9WgXcQ, https://www.youtube.com/watch?v=anothervideo", key="yt_videos")
 
     # Add a button
-    button_pressed = st.button("Get Transcript")
+    button_pressed = st.button("Get Transcript/s")
 
     # Execute this block if the button is pressed
     if button_pressed:
         if youtube_videos:
-            video_urls = youtube_videos.split(",")
-            for url in video_urls:
-                url = url.strip()
-                loader = YoutubeLoader.from_youtube_url(url, add_video_info=True)
-                data = loader.load()
+                video_urls = youtube_videos.split(",")
+                for url in video_urls:
+                    url = url.strip()
+                    transcripts = get_yt_transcripts(url)
+                    for i, (transcription, metadata) in enumerate(transcripts):
+                        st.text(f"Transcription for '{metadata['title']}'")
+                        st.image(metadata['thumbnail_url'], caption=metadata['title'])
+                        st.text_area(label=f"Transcription for '{metadata['title']}'", value=transcription, height=200, max_chars=None)
+        
+                        # Summarize the transcript and display the summaries if output_type is 'Transcript with summary'
+                        if output_type == 'Transcript with summary':
+                            summaries = summarize_transcripts([(transcription, metadata)])
+                            for summary in summaries:
+                                st.text_area(label=f"Summary for '{metadata['title']}'", value=summary, height=100, max_chars=None)
+                        st.write("---")  # Add a separator between transcripts
 
-                text_splitter = RecursiveCharacterTextSplitter(
-                    chunk_size=2000,
-                    chunk_overlap=200,
-                    length_function=len,
-                )
-                docs = text_splitter.split_documents(data)
-
-                for i, doc in enumerate(docs):
-                    transcription = doc.page_content
-                    metadata = doc.metadata
-
-                    st.text(f"Transcription for '{metadata['title']}'")
-                    st.image(metadata['thumbnail_url'], caption=metadata['title'])
-                    st.text_area(label=f"Transcription for '{metadata['title']}'", value=transcription, height=200, max_chars=None)
-                    st.write("---")  # Add a separator between transcripts
-
-                    if output_type == 'Transcript with summary':
-                        summarized_transcripts = summarize_text([transcription])
-                        if summarized_transcripts is not None:
-                            for j, summary in enumerate(summarized_transcripts):
-                                transcription_number = i * len(summarized_transcripts) + j + 1
-                                st.write(f"Summary for Transcription {transcription_number}:")
-                                st.write(summary["summary"])
-                                st.write("---")  # Add a separator between summaries
         else:
             st.warning("Please enter Youtube URLs before pressing the button.")
 
 
 
 elif input_type == 'Other URLs':
-    annotated_text(annotation("🚧 This section is under maintenance 🚧", color="#8ef", border="1px dashed red"))
+    annotated_text(annotation("🚨🚧 This section is under maintenance 🚧🚨", color="#8ef", border="1px dashed red"))
     other_urls = st.text_input(label="Other URLs (Separate multiple URLs with commas)", placeholder="Ex: ", key="other_urls")
     #model = whisper.load_model("small")
 
     # Add a button
-    button_pressed = st.button("Get Transcript")
+    button_pressed = st.button("Get Transcript/s")
 
     # Execute this block if the button is pressed
     if button_pressed:
         if other_urls:
             video_urls = other_urls.split(",")
-            for i, url in enumerate(video_urls, start=1):
-                url = url.strip()
-                transcripts = transcribe_with_whisper(url)
-                for j, (transcription,) in enumerate(transcripts):
-                    st.text(f"Transcription {i}")
-                    st.text_area(label=f"Transcription {i}", value=transcription, height=200, max_chars=None)
-                    st.write("---")  # Add a separator between transcripts
-                    
-                if output_type == 'Transcript with summary':
-                    summarized_transcripts = summarize_text(transcription)
-                    if summarized_transcripts is not None:
-                        for doc in summarized_transcripts:
-                            st.write("Summary:")
-                            st.write(doc)
+            for url in video_urls:
+                    url = url.strip()
+                    transcripts = get_yt_transcripts(url)
+                    for i, (transcription, metadata) in enumerate(transcripts):
+                        st.text(f"Transcription for '{metadata['title']}'")
+                        st.image(metadata['thumbnail_url'], caption=metadata['title'])
+                        st.text_area(label=f"Transcription for '{metadata['title']}'", value=transcription, height=200, max_chars=None)
+        
+                        # Summarize the transcript and display the summaries if output_type is 'Transcript with summary'
+                        if output_type == 'Transcript with summary':
+                            summaries = summarize_transcripts([(transcription, metadata)])
+                            for summary in summaries:
+                                st.text_area(label=f"Summary for '{metadata['title']}'", value=summary, height=100, max_chars=None)
+                        st.write("---")  # Add a separator between transcripts
+
         else:
-            st.warning("Please enter URLs before pressing the button.")
+            st.warning("Please enter Youtube URLs before pressing the button.")
 
 
 
 elif input_type == 'Local file':
-    annotated_text(annotation("🚧 This section is under maintenance 🚧", color="#8ef", border="1px dashed red"))
+    annotated_text(annotation("🚨🚧 This section is under maintenance 🚧🚨", color="#8ef", border="1px dashed red"))
     uploaded_files = st.file_uploader("Choose a file")
 
     #model = whisper.load_model("small")
