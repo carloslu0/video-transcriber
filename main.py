@@ -147,9 +147,9 @@ if input_type == 'Youtube URL':
                         if thumbnail_url:
                             st.image(thumbnail_url, caption=title)
                         
-                        st.text_area(label=f"Transcription for '{title}'", value=transcription, height=200, max_chars=None)
+                        st.text_area(label=f"Transcription for '{title}'", value=transcription, height=400, max_chars=None)
                         print(response.choices[0].message['content'])
-                        st.text_area(label=f"Summary for '{title}'", value=response.choices[0].message['content'], height=100, max_chars=None)
+                        st.text_area(label=f"Summary for '{title}'", value=response.choices[0].message['content'], height=300, max_chars=None)
                         st.write("---")  # Add a separator between transcripts
 
         else:
