@@ -8,6 +8,8 @@ from langchain.llms import OpenAI
 from langchain.document_loaders import YoutubeLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.summarize import load_summarize_chain
+from langchain.docstore.document import Document
+
 
 #Whisper
 import whisper
@@ -42,8 +44,12 @@ def get_yt_transcripts(url):
 def summarize_text(docs):
     llm = OpenAI(temperature=0, openai_api_key="YOUR_API_KEY")
     chain = load_summarize_chain(llm, chain_type="map_reduce", verbose=True)
-    return chain.run([{ "page_content": doc } for doc in docs])
 
+    # if docs is not already a list of Document instances
+    docs = [Document(page_content=doc) for doc in docs]
+
+    # run the summarization chain on the list of Document instances
+    return chain.run(docs)
 
 # Function to transcribe via Whisper
 def transcribe_with_whisper(url):
