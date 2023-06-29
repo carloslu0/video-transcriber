@@ -78,11 +78,11 @@ def handle_audio_file(file, file_path):
 
 #Start Streamlit
 # Set the Streamlit page configuration
-st.set_page_config(page_title="Lu0's handy transcription app", page_icon="🐱", layout="wide")
+st.set_page_config(page_title="Your Handy dandy transcription app", page_icon="🐱", layout="wide")
 
 # Start Top Information
-st.title("Lu0's handy transcription app 🐱")
-st.markdown("### An app I made to easily generate transcripts for videos.")
+st.title("Your handy dandy transcription app 🐱")
+st.markdown("### A mini-app to easily generate transcripts for YT videos and more.")
 
 # End Top Information
 
