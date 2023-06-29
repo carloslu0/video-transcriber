@@ -1,6 +1,10 @@
 #Environment variables
 import os
+import logging
 from dotenv import load_dotenv  
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
 #LangChain
 from langchain.llms import OpenAI
@@ -185,9 +189,16 @@ elif output_type == 'Local file':
                         split_filename = f"split{index + 1}.wav"
                         split_file.export(split_filename, format="wav")
 
-                        transcription = get_audio_transcripts(split_filename)
+                        try:
+                            logging.info(f"Processing {split_filename}...")
 
-                        st.text_area(f"Transcription for {file.name} - Part {index + 1}", value=transcription, height=200, max_chars=None)
+                            transcription = get_audio_transcripts(split_filename)
+
+                            st.text_area(f"Transcription for {file.name} - Part {index + 1}", value=transcription, height=200, max_chars=None)
+
+                            logging.info(f"Completed processing {split_filename}.")
+                        except Exception as e:
+                            logging.error(f"Error processing {split_filename}: {str(e)}")
                     
                     #Clean up the split audio file
                     os.remove(split_filename)
@@ -196,5 +207,13 @@ elif output_type == 'Local file':
                     os.remove(file_path)
 
                 else:
-                    transcription = get_audio_transcripts(file)
-                    st.text_area(f"Transcription for {file.name}", value=transcription, height=200, max_chars=None)
+                    try:
+                        logging.info(f"Processing {file.name}...")
+
+                        transcription = get_audio_transcripts(file)
+
+                        st.text_area(f"Transcription for {file.name}", value=transcription, height=200, max_chars=None)
+
+                        logging.info(f"Completed processing {file.name}.")
+                    except Exception as e:
+                        logging.error(f"Error processing {file.name}: {str(e)}")
