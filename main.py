@@ -9,14 +9,10 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.summarize import load_summarize_chain
 
 #Whisper
-import whisper
 import subprocess
-from static_ffmpeg import run
-# Platform binaries are installed on the first run of below.
-ffmpeg, ffprobe = run.get_or_fetch_platform_executables_else_raise()
-# ffmpeg, ffprobe will be paths to ffmpeg and ffprobe.
-subprocess.check_output([ffmpeg, "-version"])
-subprocess.check_output([ffprobe, "-version"])
+import whisper
+import ffmpeg
+from pydub import AudioSegment
 import mimetypes
 from pydub import AudioSegment
 from moviepy.editor import VideoFileClip
@@ -54,18 +50,24 @@ def get_audio_transcripts(file):
     # Save uploaded file to temp WAV file
     with open("temp.wav", "wb") as f:
         f.write(file.getbuffer())
-    
-    # Load WAV file with pydub
-    audio = AudioSegment.from_wav("temp.wav")
-    
-    # Pass pydub audio to whisper
+
+    # Use ffmpeg to convert audio to the desired format
+    subprocess.run(["ffmpeg", "-i", "temp.wav", "-f", "wav", "-ar", "16000", "-ac", "1", "-"], stdout=subprocess.PIPE)
+
+    # Load the converted audio with pydub
+    audio = AudioSegment.from_file("pipe:", format="wav")
+
+    # Pass the audio to whisper for transcription
     model = whisper.load_model("base")
     result = model.transcribe(audio)
-    
-    # Delete temp WAV file
+
+    # Delete temporary WAV file
     os.remove("temp.wav")
-    
+
     return result["text"]
+
+
+
 
 def handle_audio_file(file, file_path):
     # Determine audio format from file extension
