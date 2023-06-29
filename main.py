@@ -36,9 +36,7 @@ def get_yt_transcripts(url):
 
 # Function to split long transcripts into chunks via LangChain
 def split_text(transcript):
-    size = st.text_input(label="Enter chunk size:", placeholder="Ex: 2000")
-    overlap = st.text_input(label="Enter chunk overlap:", placeholder="Ex:200")
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=size, chunk_overlap=overlap)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=200)
     docs = text_splitter.split_documents([transcript])
     return docs
 
@@ -137,13 +135,13 @@ elif input_type == 'Other URLs':
     if button_pressed:
         if other_urls:
             video_urls = other_urls.split(",")
-            for url in video_urls:
+            for i, url in enumerate(video_urls, start=1):
                 url = url.strip()
                 transcripts = transcribe_with_whisper(url)
-                for i, (transcription, metadata) in enumerate(transcripts):
-                    st.text(f"Transcription for '{metadata['title']}'")
+                for j, (transcription,) in enumerate(transcripts):
+                    st.text(f"Transcription {i}")
                     st.image(metadata['thumbnail_url'], caption=metadata['title'])
-                    st.text_area(label=f"Transcription for '{metadata['title']}'", value=transcription, height=200, max_chars=None)
+                    st.text_area(label=f"Transcription {i}", value=transcription, height=200, max_chars=None)
                     st.write("---")  # Add a separator between transcripts
                     
                     if output_type == 'Transcript with summary':
