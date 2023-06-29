@@ -79,6 +79,6 @@ zipp==3.15.0
 streamlit-extras
 pydub
 moviepy
-openai-whisper
+openai-whisper==20230117
 imageio-ffmpeg
 static-ffmpeg
