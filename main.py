@@ -94,8 +94,8 @@ if input_type == 'Youtube URL':
                 docs = text_splitter.split_documents(data)
 
                 for i, doc in enumerate(docs):
-                    transcription = doc["page_content"]
-                    metadata = doc["metadata"]
+                    transcription = doc.page_content
+                    metadata = doc.metadata
 
                     st.text(f"Transcription for '{metadata['title']}'")
                     st.image(metadata['thumbnail_url'], caption=metadata['title'])
