@@ -35,8 +35,21 @@ def get_yt_transcripts(url):
     loader = YoutubeLoader.from_youtube_url(url, add_video_info=True)
     documents = loader.load()
     st.write("Creating Transcript...")
-    return [(doc.page_content, doc.metadata) for doc in documents]
 
+    # Updated part to handle if 'doc' is a string
+    transcripts = []
+    for doc in documents:
+        if isinstance(doc, str):
+            # If 'doc' is a string, it's probably the transcript itself.
+            transcripts.append((doc, {}))  # Placeholder for metadata as an empty dictionary
+        else:
+            # If 'doc' has 'page_content' and 'metadata' attributes
+            transcripts.append((doc.page_content, doc.metadata))
+    
+    return transcripts
+
+
+# Function to summarize chunks
 def summarize_transcripts(transcripts, chunk_size=2000, chunk_overlap=200):
     """
     Summarize the given transcripts.
@@ -101,15 +114,28 @@ if input_type == 'Youtube URL':
                     url = url.strip()
                     transcripts = get_yt_transcripts(url)
                     for i, (transcription, metadata) in enumerate(transcripts):
-                        st.text(f"Transcription for '{metadata['title']}'")
-                        st.image(metadata['thumbnail_url'], caption=metadata['title'])
-                        st.text_area(label=f"Transcription for '{metadata['title']}'", value=transcription, height=200, max_chars=None)
+                        
+                        # Check if metadata is available
+                        if metadata:
+                            title = metadata['title']
+                            thumbnail_url = metadata['thumbnail_url']
+                        else:
+                            title = "Unknown Title"
+                            thumbnail_url = None
+                        
+                        # Display transcription and metadata
+                        st.text(f"Transcription for '{title}'")
+                        
+                        if thumbnail_url:
+                            st.image(thumbnail_url, caption=title)
+                        
+                        st.text_area(label=f"Transcription for '{title}'", value=transcription, height=200, max_chars=None)
         
                         # Summarize the transcript and display the summaries if output_type is 'Transcript with summary'
                         if output_type == 'Transcript with summary':
                             summaries = summarize_transcripts(transcription)
                             for summary in summaries:
-                                st.text_area(label=f"Summary for '{metadata['title']}'", value=summary, height=100, max_chars=None)
+                                st.text_area(label=f"Summary for '{title}'", value=summary, height=100, max_chars=None)
                         st.write("---")  # Add a separator between transcripts
 
         else:
